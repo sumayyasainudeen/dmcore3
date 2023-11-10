@@ -1,0 +1,167 @@
+{% extends 'HD_base.html' %}
+{% load static %}
+{% block body %}
+
+<div>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a class="text-underline-remove" href="{% url 'head_dashboard' %}">Dashboard</a></li>
+          <li class="breadcrumb-item active text-md" aria-current="page">Tasks Allocated - Team Lead </li>
+        </ol>
+      </nav>
+</div>
+
+
+
+<div class="row ">
+    <div class="col-12 grid-margin">
+        <div class="card">
+            <div class="card-body">
+            
+            <div class="d-flex justify-content-between mb-3">
+                <h4 class="card-title">Task allocated - {{Tl_obj.emp_name}}</h4>
+            
+            </div>
+            
+            <div class="add-items d-flex ">
+                    
+                <input  class="form-control text-offwhite" name="#" id="search-data" placeholder="search here..">
+                <button class="btn btn-outline-danger mdi mdi-close" id="closeBtn" type="button"></button> 
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table" id="task-allocate">
+                <thead>
+                    <tr>
+                    <th>Delete/ No </th>
+                    <th>Assigned Date</th>
+                    <th>Task Start Date </th>
+                    <th>Task Due Date </th>
+                    <th>Work Type </th>
+                    <th>Task List</th>
+    
+                    
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for work_ass in works_assign %}
+                    <tr>
+                        
+                        <td>
+                            <a href="{% url 'head_assigned_work_Remove' work_ass.id %}" class=" text-decoration-none ">
+                                <button class="btn btn-outline-danger">
+                                    <span class="mdi mdi-delete-forever small mr-1"> Assigned work - {{ forloop.counter}}</span>
+                                </button>
+                                
+                            </a>
+                        </td>
+                        <td>{{ work_ass.work_assign_date }}</td>
+                        <td>{{ work_ass.wa_from_date }}</td>
+                        <td>{{ work_ass.wa_due_date }}</td>
+                        <td>
+                            {% if work_ass.wa_type == 0 %}
+
+                            <p><span class="mdi mdi-account-multiple-plus ml-2"></span> Group Work </p>
+                            {% else %}
+                            <p><span class="mdi mdi-account ml-2"></span> Single Work </p>
+
+                            <a href="{% url 'head_TlsingleTask' work_ass.id %}" class="btn btn-outline-warning "><span class="mdi mdi-check small"> Task Assign</span></a>
+
+                            {% endif %}
+
+                        </td>
+                        <td>
+                            {% for task in work_ass.wa_tasksId.all %}
+                            <div class="row">
+                                <div class="col-xl-10">
+                                    <p><span class="mdi mdi-format-list-checks text-primary mr-2"></span>
+                                        {{task.task_name}}
+                                    </p>
+                                </div>
+                                <div class="col-xl-2">
+                                    <a href="{% url 'head_assigned_task_Remove' work_ass.id task.id  %}"><span class="mdi mdi-close text-danger"></span></a>
+                                </div>
+
+                            </div>
+                            {% endfor %}
+                           
+                        </td>
+                    
+                    </tr>
+                   
+                    {% endfor %}
+                </tbody>
+                </table>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+   
+    const inputField = document.getElementById('search-data');
+    const closeBtn = document.getElementById('closeBtn');
+    const empTable = document.getElementById('task-allocate');
+    closeBtn.style.display = 'none';
+  
+    inputField.addEventListener('input', function() {
+        filterTable();
+    });
+  
+    function filterTable() {
+        const filterValue = inputField.value.toLowerCase();
+        const rows = empTable.getElementsByTagName('tr');
+  
+        for (let i = 1; i < rows.length; i++) {
+            const Cell0 = rows[i].getElementsByTagName('td')[0];
+            const Cell1 = rows[i].getElementsByTagName('td')[1];
+            const Cell2 = rows[i].getElementsByTagName('td')[2];
+            const Cell3 = rows[i].getElementsByTagName('td')[3];
+            const Cell4 = rows[i].getElementsByTagName('td')[4];
+            const Cell5 = rows[i].getElementsByTagName('td')[5];
+           
+            
+  
+            if (Cell1 || Cell2 || Cell3 || Cell4 || Cell0 || Cell5  ) {
+                const datacell0 = Cell0.textContent || Cell0.innerText;
+                const datacell1 = Cell1.textContent || Cell1.innerText;
+                const datacell2 = Cell2.textContent || Cell2.innerText;
+                const datacell3 = Cell3.textContent || Cell3.innerText;
+                const datacell4 = Cell4.textContent || Cell4.innerText;
+                const datacell5 = Cell5.textContent || Cell5.innerText;
+               
+                
+                
+  
+                if ( datacell0.toLowerCase().includes(filterValue) || datacell1.toLowerCase().includes(filterValue) || datacell2.toLowerCase().includes(filterValue)
+                || datacell3.toLowerCase().includes(filterValue)|| datacell4.toLowerCase().includes(filterValue) || datacell5.toLowerCase().includes(filterValue) ) 
+                {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+        }
+    }
+  
+     // To display the close button and hide the close button based on the search input 
+    inputField.addEventListener('input', function() {
+    if (inputField.value == '') {
+        closeBtn.style.display = 'none';
+       
+    } else {
+        closeBtn.style.display = 'block';
+        
+    }
+    });
+  
+    closeBtn.addEventListener('click', function() {
+    inputField.value = '';
+    closeBtn.style.display = 'none';
+    filterTable(); // Display the full table data
+    });
+</script>
+
+{% endblock %}

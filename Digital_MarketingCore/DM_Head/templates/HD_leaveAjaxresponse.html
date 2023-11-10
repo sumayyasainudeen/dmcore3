@@ -1,0 +1,256 @@
+
+
+<div class="card" id="view-leave" >
+  <div class="card-body">
+    <div class="leave-form">
+      <h4 class="card-title mb-4">My Leaves </h4>
+      <form action="#" method="post">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-sm-12 col-lg-5 col-md-5">
+            <div class="form-group">
+              <label>from date</label>
+              <input type="date" class="form-control text-offwhite" name="fromdate" id="my-fdate" required > 
+              <span class="text-danger mt-1 text-small" id="error-box1" style="display: none;"></span>
+              <input type="hidden" value="{{dash_details.id}}" id="myleave-searchId">                   
+            </div>
+          </div>
+          <div class="col-sm-12 col-lg-5 col-md-5">
+            <div class="form-group">
+              <label>to date</label>
+              <input type="date" class="form-control text-offwhite" name="todate" id="my-edate"  required  >
+              <span class="text-danger mt-1 text-small" id="error-box2" style="display: none;"></span>                          
+            </div>
+          </div>
+          <div class="col-sm-12 col-lg-2 col-md-1 d-flex  justify-content-center  align-items-center">       
+            <button class=" btn btn-outline-primary " type="button" id="myleave-search-btn"><i class="mdi mdi-magnify mdi-18px"></i></button> 
+          </div>
+         
+        </div>
+        <div class="row">
+          <div class="col-sm-12 col-lg-12 col-md-12">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th> status </th>
+                    <th> From Date </th>
+                    <th> To Date </th>
+                    <th> Leave Type </th>
+                    <th> reason </th>
+                   
+                   
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for leave in leave_data%}
+                  <tr> 
+
+                    <td>
+                      {% if leave.leave_status == 1 %}
+                      <div class="badge badge-outline-success">Approved</div>
+                      {% elif leave.leave_status == 2 %}
+                      <div class="badge badge-outline-danger">Rejected</div>
+                      {% else %}
+                      <div class="badge badge-outline-warning">Pending</div>
+                      {% endif %}
+                    </td>
+                    <td> {{leave.start_date}} </td>
+                    <td> {{leave.end_date}} </td>
+                    <td> {{leave.leave_type}}</td>
+                    <td> {{leave.leave_reason}} </td>
+                   
+                    
+                  </tr>
+                  {% endfor %}
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </form>
+      
+    </div>
+  </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+
+<!-- Leave status change -->
+<script>
+  $(document).ready(function () {
+
+  function attachEventHandlers() {
+    $('#employee_leave_table').on('click', '.approve_click', function () {
+        console.log('approve click')
+        var leaveId = $(this).siblings('.leaveId').val();
+        updateLeaveStatus(leaveId, 'approve');
+    });
+
+    $('#employee_leave_table').on('click', '.reject_click', function () {
+      console.log('reject click')
+        var leaveId = $(this).siblings('.leaveId').val();
+        updateLeaveStatus(leaveId, 'reject');
+    });
+  }
+
+
+    // Attach event handlers initially
+      attachEventHandlers();
+
+      // Function to update modal based on action (approve or reject)
+      function updateLeaveStatus(leaveId, action) {
+          // Make an AJAX call to update the modal based on leaveId and action
+          $.ajaxSetup({
+            headers: {
+                'X-CSRFToken': $('input[name=csrfmiddlewaretoken]').val()
+            }
+          });
+          $.ajax({
+              url: "{% url 'head_leaveApprove_Reject' %}",
+              type: 'POST',
+              data: {
+                  leaveId: leaveId,
+                  action: action
+              },
+              success: function (response) {
+                $('#employee-leave').html(response.html_content)
+                $('#view-leave').html(response.my_leave)
+                var leaveRequest = JSON.parse(response.leave_request);
+
+                if (leaveRequest.length > 0) {
+                  $('#blinking').css('display', 'block');
+                } else {
+                    $('#blinking').css('display', 'none');
+                }
+              },
+              error: function (error) {
+                  console.log('AJAX error:', error);
+              }
+          });
+          
+      }
+  });
+</script>
+
+
+<!-- leave serch -->
+<script>
+  $(document).ready(function() {
+    // Event handler for the myleave-serch-btn button
+    $('#myleave-search-btn').click(function() {
+        console.log('clicked')
+        var myId = $('#myleave-searchId').val(); 
+        var fdate = $('#my-fdate').val(); 
+        var edate = $('#my-edate').val(); 
+        var errorBox1 = $('#error-box1');
+        var errorBox2 = $('#error-box2');
+  
+        if (fdate.trim() !== '') {
+            errorBox1.hide();
+        } 
+        else {
+            console.log('No value entered.');
+            errorBox1.text('Please enter the date.').show();  
+            setTimeout(function () {
+              errorBox1.hide();
+              }, 4000);  
+        }
+        
+        if (edate.trim() !== '') {
+          errorBox2.hide();
+        } 
+        else {
+            console.log('No value entered.');
+            errorBox2.text('Please enter the date.').show();  
+            setTimeout(function () {
+              errorBox2.hide();
+              }, 4000);  
+        }
+        if (fdate.trim() !== '' && edate.trim() !== ''  ) {
+          errorBox1.hide();
+          errorBox2.hide();
+           // Call the AJAX function and pass the values
+          LeaveSeach(myId,fdate,edate);
+        } 
+       
+    });
+  
+    // Event handler for the leave-serch-btn button
+    $('#leave-search-btn').click(function() {
+  
+        console.log('clicked')
+        var empId = $('#leave-employeeId').val();
+        var fdate = $('#emp-fdate').val(); 
+        var edate = $('#emp-edate').val();  
+        var errorBox3 = $('#error-box3');
+        var errorBox4 = $('#error-box4');
+  
+        if (fdate.trim() !== '') {
+            errorBox3.hide();
+        } 
+        else {
+            console.log('No value entered.');
+            errorBox3.text('Please enter the date.').show(); 
+  
+            
+            setTimeout(function () {
+              errorBox3.hide();
+              }, 4000);  
+        }
+        if (edate.trim() !== '') {
+          errorBox4.hide();
+        } 
+        else {
+            console.log('No value entered.');
+            errorBox4.text('Please enter the date.').show();  
+            setTimeout(function () {
+              errorBox4.hide();
+              }, 4000); 
+        }
+        if (fdate.trim() !== '' && edate.trim() !== ''  ) {
+          errorBox4.hide();
+          errorBox3.hide();
+          // Call the AJAX function and pass the values
+          LeaveSeach(empId,fdate,edate);
+        } 
+      
+    });
+  });
+  
+  // Function to handle AJAX call
+  function LeaveSeach(seachId,from_date,end_date) {
+    $.ajaxSetup({
+      headers: {
+          'X-CSRFToken': $('input[name=csrfmiddlewaretoken]').val()
+      }
+    });
+    $.ajax({
+        url: "{% url 'head_leaveSearch' %}",  // Replace with your actual AJAX endpoint
+        type: 'POST',
+        data: {
+            searchValue: seachId,
+            f_Date: from_date,
+            e_Date: end_date
+        },
+        success: function (response) {
+          $('#employee-leave').html(response.html_content)
+          $('#view-leave').html(response.my_leave)
+          var leaveRequest = JSON.parse(response.leave_request);
+  
+          if (leaveRequest.length > 0) {
+            $('#blinking').css('display', 'block');
+          } else {
+              $('#blinking').css('display', 'none');
+          }
+        },
+        error: function(error) {
+            console.log('AJAX error:', error);
+        }
+    });
+  }
+</script>

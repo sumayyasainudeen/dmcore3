@@ -1,0 +1,197 @@
+{% extends 'AD_base.html' %}
+{% load static %}
+{% block body %}
+
+<div>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a class="text-underline-remove" href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+          <li class="breadcrumb-item active text-md" aria-current="page">Department</li>
+        </ol>
+      </nav>
+</div>
+
+<!--  Mail section -->
+
+<div class="row">
+
+    <div class="col-md-12 col-xl-4 grid-margin stretch-card">
+        <div class="row">
+            
+            <div class="col-xl-12 col-sm-12 grid-margin stretch-card">
+              <div class="card" id="department-view-btn">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-9">
+                      <div class="d-flex align-items-center align-self-start">
+                        <h4 class="mb-0">Departments </h4>
+                        <p class="text-success ml-2 mb-0 font-weight-medium">+11%</p>
+                      </div>
+                    </div>
+                    <div class="col-3">
+                      <div class="icon icon-box-success">
+                        <span class="mdi mdi-arrow-top-right icon-item"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <h6 class="text-muted font-weight-normal">Revenue current</h6>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-12 col-sm-12 grid-margin stretch-card">
+              <div class="card" id="department-add-btn">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-9">
+                      <div class="d-flex align-items-center align-self-start">
+                        <h4 class="mb-0">Add Department </h4>
+                        <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
+                      </div>
+                    </div>
+                    <div class="col-3">
+                      <div class="icon icon-box-success ">
+                        <span class="mdi mdi-arrow-top-right icon-item"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <h6 class="text-muted font-weight-normal">Potential growth</h6>
+                </div>
+              </div>
+            </div>
+           
+            
+          </div>
+    </div>
+    <div class="col-md-12 col-xl-8 grid-margin stretch-card">
+  
+      <div class="card" id="department-view" >
+        <div class="card-body">
+          <div class="leave-form">
+            <h4 class="card-title mb-4">Departments  </h4>
+       
+              <div class="row">
+                <div class="col-sm-12 col-lg-12 col-md-12">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th> No</th>
+                          <th> Register Date </th>
+                          <th> Department Name </th>
+                          <th> Active Status </th>
+                          <th> Action </th>
+                          
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for department in departments %}
+                        <tr>
+                          <td>{{forloop.counter}}</td>
+                          <td> {{department.dept_reg_date}} </td>
+                          <td>
+                            <img src="{% static 'images\dashboard\department-icon.png' %}" alt="image" />
+                            <span class="pl-2">{{department.dept_name}}</span>
+                          </td>
+                          <td> 
+                            {% if department.dept_active_status == 1 %}
+                            <div class="preview-list">
+                              <div class="preview-item ">
+                                <div class="preview-thumbnail mr-1">
+                                  <div class="preview-icon bg-success">
+                                    <i class="mdi mdi-check p-1"></i>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            {% else %}
+                            <div class="preview-list">
+                              <div class="preview-item ">
+                                <div class="preview-thumbnail mr-1">
+                                  <div class="preview-icon bg-danger">
+                                    <i class="mdi mdi-close p-1"></i>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            {% endif %}
+                          </td>
+                            <td> 
+                              <div class="preview-list d-flex">
+                                <div class="preview-item ">
+                                  <div class="preview-thumbnail mr-1">
+                                    <div class="preview-icon bg-primary">
+                                      <i class="mdi mdi-pencil p-1"></i>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="preview-item ">
+                                  <div class="preview-thumbnail mr-1">
+                                    <div class="preview-icon bg-danger">
+                                      <i class="mdi mdi-delete p-1"></i>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                          </td>
+                  
+                        </tr>
+                        {% endfor %}
+                       
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            
+          </div>
+        </div>
+      </div>
+  
+      <div class="card" id="department-add" >
+        <div class="card-body">
+          <div class="leave-form">
+            <h4 class="card-title mb-4"> Department Add  </h4>
+            <form action="#" method="post" >
+              {% csrf_token %}
+  
+              <div class="add-items d-flex ">
+                <input type="text" class="form-control  text-offwhite" name="department_name" id="#" placeholder="department name.." required>  
+                <button class=" btn btn-primary " type="submit">Add</button>
+            </div>
+              <div class="form-group add-items">
+                  <textarea  class="to-do-textarea  text-offwhite" name="department_discription" id="#" placeholder="small discription about designation.."></textarea>
+              </div>
+          
+            </form>
+          </div>
+        </div>
+    </div>
+  
+       
+    </div>
+  
+  </div>
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  
+  
+  
+    <script>
+      $(document).ready(function() {
+        $('#department-add').hide();
+  
+        $('#department-view-btn').click(function() {
+          $('#department-view').show();
+          $('#department-add').hide();
+        });
+    
+        $('#department-add-btn').click(function() {
+          $('#department-view').hide();
+          $('#department-add').show();
+        });
+      });
+    </script>
+
+
+
+{% endblock %}

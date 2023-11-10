@@ -1,0 +1,554 @@
+{% extends 'HD_base.html' %}
+{% load static %}
+{% block body %}
+
+<div>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a class="text-underline-remove" href="{% url 'head_dashboard' %}">Dashboard</a></li>
+          <li class="breadcrumb-item active text-md" aria-current="page">Work Edit</li>
+        </ol>
+      </nav>
+</div>
+
+
+
+<div class="card d-none mb-3" id="edit-Div" >
+    <div class="card-body">
+        <div class="d-flex justify-content-between">
+            <h5 class="card-title mt-2">Edit Work Details </h5>
+            <span class="mdi mdi-close mdi-18px text-danger " id="closeBtn"></span>
+        </div>
+       
+        <form action="{% url 'head_workDetailsEdit' works.id %}" method="post" >
+            {% csrf_token %}
+            <div class="form-group add-items">
+                <label>About Work </label>
+                <textarea class="to-do-textarea  text-offwhite" name="wDiscription">{{works.work_discription|default:'No discriptions available'}}  </textarea>
+            </div>
+            <div class="form-group add-items">
+                <label>Work start date </label>
+                <input type="date" class="form-control  text-offwhite" name="wSdate" value="{{ works.work_create_date|date:'Y-m-d' }}" >  
+            </div>
+            <div class="form-group add-items">
+                <label>Work end date </label>
+                <input type="date" class="form-control  text-offwhite" name="wEdate" value="{{ works.work_end_date|date:'Y-m-d' }}" >  
+            </div>
+            <div class="form-group add-items">
+                <label>Work Progress</label>
+                <input type="number" class="form-control  text-offwhite" name="wProgress" value="{{ works.work_progress|default:'0' }}" >  
+            </div>
+            <div class="add-items d-flex justify-content-center ">
+                <button class=" btn btn-outline-primary " type="submit">
+                    <span class="mdi mdi-pen mdi-18px mr-1"></span>Edit
+                </button> 
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-xl-12 col-sm-12 grid-margin stretch-card">
+
+        <div class="card">
+            <div class="card-body">
+                <div class="schedule-task-wrapper">
+                    <div class="sechedule-task d-flex">
+                        <div class="left-date-time">
+                            {% if works.clientId.bussiness_logo %}
+                                <img src="{{works.clientId.bussiness_logo.url}}" style="border-radius: 50%;" height="75px;" width="75px;" alt="Profile-image" />
+                            {% else %}
+                                <img src="{% static 'images/faces/profile-icon.png' %}" height="75px;" width="75px;" alt="Profile-image" />
+                            {% endif %}
+                            
+                           
+                        
+                        </div>
+                        <div class="right-scheduletask d-flex">
+                            <div class="inner-schedule-content">
+                                
+                                <h6>{{works.clientId.client_bussiness_name}}</h6>
+                                <p class="mt-3 mb-0"><span class="text-primary mdi mdi-pen mdi-18px ml-1" id="edit-Btn"></span> About Work  </p>
+                                <p class="mt-1">{{works.work_discription|default:"No discriptions available"}}</p>
+                                <p> 
+                                    <span class="mr-3">Work Created Date : {{works.work_create_date}}</span>
+                                    <span>Work End Date : {{works.work_end_date}}</span>
+                                </p>
+                                
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                </div>
+                <div class="progress progress-sm">
+                    <div class="progress-bar bg-warning progress-bar-animated progress-bar-striped" role="progressbar" aria-valuenow="{{works.work_progress}}" style="width: {{works.work_progress}}% " aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-xl-6 col-sm-12 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Task List</h4>
+
+                {% if Task_list %}
+                <div class="schedule-task-wrapper">
+                    {% for Task in Task_list %}
+                    <div class="sechedule-task d-flex">
+                        <div class="left-date-time">
+                            
+                            <p class="schedule-date">{{Task.task_create_date}}</p>
+                            <div class="schedule-change ml-2">
+                                <a href="{% url 'head_workTaskEdit' Task.id %}" class="test-primary"><i class=" mdi mdi-pencil"></i></a>
+                                <a href="{% url 'head_workTaskDelete' Task.id %}" class="text-danger"><i class=" mdi mdi-close-box"></i></a>
+                            </div>
+                           
+                           
+                        </div>
+                        <div class="right-scheduletask d-flex">
+                            <div class="inner-schedule-content">
+                                
+                                <h6>{{Task.task_name}}</h6>
+                                {% if Task.task_name == 'Lead Collection' %}
+                                <p>
+                                  <span class="mt-1 mb-2 mr-2 small">Click to add data collection fields *
+                                    <button class="ml-3 btn btn-outline-primary"  data-toggle="modal" data-target="#field_add">
+                                      
+                                      <span class="mdi mdi-plus mdi-18px"></span>
+                                    </button>
+                                  </span>
+                                </p>
+                                {% endif %}
+                                <p>{{Task.task_discription}}</p>
+
+                                {% if Task.task_file %}
+                                    <div class="form-group">
+                                        <label  class="text-muted  small">Download </label>
+                                        <a href="{{Task.task_file.url}}" class="btn btn-danger" download="{{Task.task_file.url}}" >
+                                            <span class="mdi mdi-download mdi-18px"></span>
+                                        </a>
+                                    </div>
+                                {% endif %}
+                                
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                </div>
+                {% else %}
+                <div class="d-flex justify-content-center">
+                    <img src="{% static 'images\file-icons\no-data-file.png' %}">
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-6 col-sm-12 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Task</h4>
+                
+                <form action="{% url 'head_work_taskadd' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{task_edit_obj.id}}" name="task_ID">
+                    <input type="hidden" value="{{works.id}}" name="Worktask_ID">
+                    <div class="add-items d-flex ">
+                        <select class="form-control text-offwhite" name="task_name" required id="task-list">
+                            {% if task_edit_obj %}
+                            <option value="{{task_edit_obj.task_name}}"><span class="sechudule-name">{{task_edit_obj.task_name}}</span></option>
+                            {% else %}
+                            <option value=""><span class="sechudule-name">---- select task ----</span></option>
+                            {% endif %}
+                            {% for ctask in Company_taskList %}
+                            <option value="{{ctask.task_name}}"><span class="sechudule-name">{{ctask.task_name}}</span></option>
+                            {% endfor %}
+                            
+                        </select>
+
+                        <button class="btn btn-outline-success" type="submit"><i class="mdi mdi-check mdi-18px"></i></button> 
+                    </div>
+                    {% if not task_edit_obj %}
+                    <div class="add-items d-flex ">
+                        <input class="form-control text-offwhite" type="text"  id="add-task" placeholder="If the required task isn't listed, you can add it. ">
+                        <button class="btn btn-outline-danger" type="button" id="add-taskBtn"><i class="mdi mdi-plus mdi-18px"></i></button>     
+                    </div>
+                    {% endif  %}
+                    
+                    <div class="form-group add-items">
+                        <textarea  class="to-do-textarea  text-offwhite" name="task_discription" id="#" placeholder="enter discription..">{{task_edit_obj.task_discription}}</textarea>
+                    </div>
+                    <div class="form-group add-items">
+                        <input class="form-control text-offwhite" type="file" name="task_file" >
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-xl-4 col-sm-12 grid-margin stretch-card">
+    </div>
+    <div class="col-xl-4 col-sm-12 grid-margin stretch-card">
+    </div>
+
+</div>
+
+
+<form action="{% url 'head_workEdit' works.id %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+
+        <div class="col-xl-6 col-sm-6 grid-margin stretch-card">
+
+            <div class="card" id="#" >
+                <div class="card-body">
+                    <h4 class="card-title">Basic Information </h4>
+                    <input type="hidden" value="{{works.clientId.id}}" name="client_ID">
+                    <input type="hidden" value="{{works.id}}" name="work_ID">
+                        
+                        <div class="row mt-4">
+                            <div class="col-sm-12 col-lg-2 col-md-12">
+                                {% if works.clientId.client_profile %}
+                                <img src="{{works.clientId.client_profile.url}}" style="border-radius: 50%;" height="60px;" width="60px;" alt="Profile-image" />
+                                {% else %}
+                                <img src="{% static 'images/faces/profile-icon.png' %}" height="60px;" width="60px;" alt="Profile-image" />
+                                {% endif %}
+                            </div>
+                          <div class="col-sm-12 col-lg-10 col-md-12">
+                            <div class="form-group add-items">
+                              <label>Client Name *</label>
+                              <input type="text" class="form-control  text-offwhite" name="cName" value="{{works.clientId.client_name}}" required>  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Email id *</label>
+                              <input type="email" class="form-control  text-offwhite" name="cEmail_1" value="{{works.clientId.client_email_primary}}" required>  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Alternative email id </label>
+                              <input type="email" class="form-control  text-offwhite" name="cEmail_2"  value="{{works.clientId.client_email_alter}}" >  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Phnone number </label>
+                              <input type="tel" class="form-control  text-offwhite" name="cPhno_1" value="{{works.clientId.client_phone}}"   required>  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Alternative phnone number </label>
+                              <input type="tel" class="form-control  text-offwhite" name="cPhno_2"  value="{{works.clientId.client_phone_alter}}">  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Address line 1 </label>
+                              <input type="text" class="form-control  text-offwhite" id="cAdd1" name="cAddress1" value="{{works.clientId.client_address1}}" required>  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Address line 2 </label>
+                              <input type="text" class="form-control  text-offwhite" name="cAddress2" id="cAdd2" value="{{works.clientId.client_address2}}" required>  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Address line 3 </label>
+                              <input type="text" class="form-control  text-offwhite" name="cAddress3" id="cAdd3" value="{{works.clientId.client_address3}}">  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Place </label>
+                              <input type="text" class="form-control  text-offwhite" name="cPlace" id="cloc"  value="{{works.clientId.client_place}}" required>  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>District </label>
+                              <input type="text" class="form-control  text-offwhite" name="cDistrict" id="cdist" value="{{works.clientId.client_district}}" required>  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>State </label>
+                              <input type="text" class="form-control  text-offwhite" name="cState" id="cstate" value="{{works.clientId.client_state}}" required>  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-12 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Profile </label>
+                              <input type="file" class="form-control  text-offwhite" name="cProfile" >  
+                            </div>
+                          </div>
+                        </div>
+
+                </div>
+                <div class="add-items d-flex justify-content-center ">
+                    <button class=" btn btn-outline-primary " type="submit">
+                        <span class="mdi mdi-pen mdi-18px mr-1"></span>Edit
+                    </button> 
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6 col-sm-6 grid-margin ">
+
+            <div class="card" >
+                <div class="card-body">
+                        <h4 class="card-title mt-2">Bussiness Information </h4>
+
+                        <div class="row mt-4">
+                          <div class="col-sm-12 col-lg-12 col-md-12">
+                            <div class="form-group add-items">
+                              
+                              <input type="checkbox" class=" text-offwhite mr-2" name="" id="copy-details">
+                              <span class="small">Check if address is same</span> 
+                             
+                            </div>
+                          </div>
+                        </div>
+  
+                       
+                        <div class="row mt-3">
+                            <div class="col-sm-12 col-lg-2 col-md-12">
+                                {% if works.clientId.bussiness_logo %}
+                                <img src="{{works.clientId.bussiness_logo.url}}" style="border-radius: 50%;" height="60px;" width="60px;" alt="Profile-image" />
+                                {% else %}
+                                <img src="{% static 'images/faces/profile-icon.png' %}" height="60px;" width="60px;" alt="Profile-image" />
+                                {% endif %}
+                            </div>
+                          <div class="col-sm-12 col-lg-5 col-md-12">
+                            <div class="form-group add-items">
+                              <label> Bussiness Name *</label>
+                              <input type="text" class="form-control  text-offwhite" name="cBussinessName" value="{{works.clientId.client_bussiness_name}}" required>  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-5 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Bussiness email id *</label>
+                              <input type="email" class="form-control  text-offwhite" name="cBussinessEmail_1" value="{{works.clientId.client_bussiness_email_primary}}"  required>  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Alternative email id </label>
+                              <input type="email" class="form-control  text-offwhite" name="cBussinessEmail_2" value="{{works.clientId.client_bussiness_email_alter}}" >  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Website URL</label>
+                              <input type="url" class="form-control  text-offwhite" name="cBussinessUrl" value="{{works.clientId.client_bussiness_website}}"  >  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Phnone number </label>
+                              <input type="tel" class="form-control  text-offwhite" name="cBussinessPhno_1" value="{{works.clientId.client_bussiness_phone}}" required>  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Alternative phnone number </label>
+                              <input type="tel" class="form-control  text-offwhite" name="cBussinessPhno_2" value="{{works.clientId.client_bussiness_phone_alter}}" >  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label> Bussiness Address line 1 </label>
+                              <input type="text" class="form-control  text-offwhite" id="cbAdd1" name="cBussinessAddress_1" value="{{works.clientId.client_bussiness_address1}}" required>  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Bussiness Address line 2 </label>
+                              <input type="text" class="form-control  text-offwhite" name="cBussinessAddress_2" id="cbAdd2" value="{{works.clientId.client_bussiness_address2}}"  required>  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label> Bussiness Address line 3 </label>
+                              <input type="text" class="form-control  text-offwhite" name="cBussinessAddress_3" id="cbAdd3" value="{{works.clientId.client_bussiness_address3}}" >  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Location </label>
+                              <input type="text" class="form-control  text-offwhite" name="cBussinessLoc" id="cbloc" value="{{works.clientId.client_bussiness_place}}" required>  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>District </label>
+                              <input type="text" class="form-control  text-offwhite" name="cBussinessDistrict" id="cbdist" value="{{works.clientId.client_bussiness_district}}" required>  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-6 col-md-6">
+                            <div class="form-group add-items">
+                              <label>State </label>
+                              <input type="text" class="form-control text-offwhite" name="cBussinessState" id="cbstate" value="{{works.clientId.client_bussiness_state}}" required>  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-5 col-md-6">
+                            <div class="form-group add-items">
+                              <label>Logo </label>
+                              <input type="file" class="form-control  text-offwhite" name="cBussinessLogo" >  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-5 col-md-6">
+                            <div class="form-group add-items">
+                              <label>File </label>
+                              <input type="file" class="form-control  text-offwhite" name="cBussinessFile" >  
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-lg-2 col-md-6">
+                            {% if works.clientId.client_bussiness_file %}
+                            <div class="form-group">
+                             <label  class="text-muted  small">Download </label>
+                              <a href="{{works.clientId.client_bussiness_file.url}}" class="btn btn-danger" download="{{works.clientId.client_bussiness_file.url}}" >
+                                <span class="mdi mdi-download mdi-18px"></span>
+                              </a>
+                            </div>
+                            {% endif %}
+                          </div>
+                          <div class="col-sm-12 col-lg-12 col-md-12">
+                            <div class="form-group add-items">
+                              <label>More about </label>
+                              <textarea class="to-do-textarea  text-offwhite" name="moreAbout" value="{{works.clientId.more_discription}}" placeholder="enter more about">  </textarea>
+                            </div>
+                          </div>
+                        </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+<div class="modal fade" id="field_add">
+  <div class="modal-dialog  ">
+    <div class="modal-content">
+
+      <div class="card">
+        <div class="card-head d-flex justify-content-between align-items-center mt-3 mb-0 ">
+          <h4 class="card-title mt-3 ml-3">Field Add </h4>
+          <span class="mdi mdi-close-box mdi-18px text-danger mr-2"  data-dismiss="modal"></span>
+        </div>
+        <p class="mt-1 ml-3"> * Please add a field to collect data and what type of data is it?.</p>
+        
+        <div class="card-body mt-0">
+
+          <form action="#" method="post">
+           
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-xl-12 col-sm-12 grid-margin ">
+                    <div class="card">
+                        
+                        <div class="card-body">
+                            <div class="form-group add-items"> 
+                              <input type="hidden" value=""  name="#">
+                                <div class="form-group add-items ">
+                                    <label>Field Name</label>
+                                    <input type="text" class="form-control text-offwhite" name="fieldName" required>  
+                                </div>
+                                <label>Type of data</label>
+                                <select class="form-control text-offwhite" name="fieldType" id="#" required>
+                                  <option value="">--- select type --- </option>
+                                  <option value="">text</option>
+                                  <option value="">email</option>
+                                  <option value="">numer</option>
+                                  <option value="">date</option>
+                                  <option value="">url</option>
+                                  <option value="">file</option>
+                                 
+                                  
+                                </select>  
+                                 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+               
+            </div>
+        
+            <div class="add-items d-flex justify-content-center ">
+                <button class=" btn btn-outline-primary " type="submit">Allocate</button> 
+            </div>
+        
+        </form>
+
+        </div>
+
+      </div>
+    
+    </div>
+  </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    $('#copy-details').change(function() {
+      if ($(this).is(':checked')) {
+        $('#cbAdd1').val($('#cAdd1').val());
+        $('#cbAdd2').val($('#cAdd2').val());
+        $('#cbAdd3').val($('#cAdd3').val());
+        $('#cbloc').val($('#cloc').val());
+        $('#cbdist').val($('#cdist').val());
+        $('#cbstate').val($('#cstate').val());
+      } else {
+        $('#cbAdd1').val('');
+      }
+    });
+  });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('#add-taskBtn').on('click', function() {
+            var inputText = $('#add-task').val().trim();
+            if (inputText) {
+                
+                var newOption = $('<option></option>').attr('value', inputText).text(inputText);
+               
+                $('#task-list').append(newOption);
+                $('#task-list').val(inputText);
+                $('#add-task').val('');  
+            }
+        });
+    });
+
+    $(document).ready(function() {
+        $('#edit-Btn').on('click', function() {
+            $('#edit-Div').toggleClass('d-none');
+            console.log('click')
+        });
+
+        $('#closeBtn').on('click', function() {
+            $('#edit-Div').addClass('d-none');
+        });
+    });
+</script>
+
+{% endblock %}
